@@ -15,12 +15,18 @@ node {
             sh '"$MVN_HOME/bin/mvn" -Dmaven.test.failure.ignore clean package'
          } else {
             bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore clean package/)
-            bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore verify sonar:sonar/)
+
          }
       }
    }
+    stage ('sonarqube analysis'){
+    withEnv(["MVN_HOME=$mvnHome"]) {
+       bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore verify sonar:sonar/)
+       }
+      }
    stage('Results') {
       junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.jar'
    }
+
 }
