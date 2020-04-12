@@ -28,7 +28,7 @@ node {
       }
       stage ('OWASP Dependency-Check Vulnerabilities') {
                      bat(/"%depCheck%\bin\dependency-check"/)
-                    dependencyCheck additionalArguments: '-f "HTML, XML,CSV" -s .'
+
                   }
    stage('Results') {
       junit '**/target/surefire-reports/TEST-*.xml'
