@@ -35,6 +35,7 @@ node {
 
                       dependencyCheckPublisher pattern: 'dependency-check-report.xml'
                   }
+                  }
    stage('Results') {
       junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.jar'
