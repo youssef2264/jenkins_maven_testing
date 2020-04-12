@@ -7,6 +7,7 @@ node {
       // ** NOTE: This 'M3' Maven tool must be configured
       // **       in the global configuration.           
       mvnHome = tool 'M3'
+      depCheck = tool 'dependencyCheck'
 
    }
    stage('Build') {
@@ -26,6 +27,7 @@ node {
        }
       }
       stage ('OWASP Dependency-Check Vulnerabilities') {
+                     bat(/"%depCheck%\bin\dependency-check"/)
                     dependencyCheck additionalArguments: '-f "HTML, XML,CSV" -s .'
                   }
    stage('Results') {
