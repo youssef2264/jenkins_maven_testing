@@ -7,6 +7,7 @@ node {
       // ** NOTE: This 'M3' Maven tool must be configured
       // **       in the global configuration.           
       mvnHome = tool 'M3'
+
    }
    stage('Build') {
       // Run the maven build
@@ -24,6 +25,12 @@ node {
        bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore verify sonar:sonar/)
        }
       }
+      stage('Dependency Check') {
+              steps {
+                  // Run OWASP Dependency Check
+                  dependencyCheck additionalArguments: '-f "HTML, XML,CSV" -s .'
+              }
+            }
    stage('Results') {
       junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.jar'
