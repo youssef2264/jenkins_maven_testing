@@ -25,12 +25,16 @@ node {
        bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore verify sonar:sonar/)
        }
       }
-      stage('Dependency Check') {
-              steps {
-                  // Run OWASP Dependency Check
-                  dependencyCheck additionalArguments: '-f "HTML, XML,CSV" -s .'
-              }
-            }
+      stage ('OWASP Dependency-Check Vulnerabilities') {
+                  steps {
+                      dependencyCheck additionalArguments: '''
+                          -o "./"
+                          -s "./"
+                          -f "ALL"
+                          --prettyPrint''', odcInstallation: 'OWASP-DC'
+
+                      dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+                  }
    stage('Results') {
       junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.jar'
