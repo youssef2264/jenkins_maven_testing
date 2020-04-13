@@ -5,34 +5,32 @@ node {
       git 'https://github.com/AliElKhatteb/jenkins_maven_testing.git'
       // Get the Maven tool.
       // ** NOTE: This 'M3' Maven tool must be configured
-      // **       in the global configuration.           
+      // **       in the global configuration.
       mvnHome = tool 'M3'
-      depCheck = tool 'dependencyCheck'
-
+      dep_check= tool 'vuln'
    }
    stage('Build') {
       // Run the maven build
-      withEnv(["MVN_HOME=$mvnHome"]) {
-         if (isUnix()) {
-            sh '"$MVN_HOME/bin/mvn" -Dmaven.test.failure.ignore clean package'
-         } else {
-            bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore clean package/)
-
-         }
+      if (isUnix()) {
+         sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean package"
+      } else {
+         bat(/"${mvnHome}\bin\mvn" -Dmaven.test.failure.ignore clean package/)
       }
    }
-    stage ('sonarqube analysis'){
-    withEnv(["MVN_HOME=$mvnHome"]) {
-       bat(/"%MVN_HOME%\bin\mvn" -Dmaven.test.failure.ignore verify sonar:sonar/)
-       }
-      }
-      stage ('OWASP Dependency-Check Vulnerabilities') {
-                     bat(/"%depCheck%\bin\dependency-check"/)
 
-                  }
+   stage ('sonarqube analysis'){
+       bat(/"${mvnHome}\bin\mvn" -Dmaven.test.failure.ignore verify sonar:sonar/)
+      }
    stage('Results') {
       junit '**/target/surefire-reports/TEST-*.xml'
       archiveArtifacts 'target/*.jar'
    }
+   stage("Dependency Check") {
+
+      bat(/"${dep_check}\bin\dependency-check" -f XML -s target\*.jar /)
+      dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+
+      archiveArtifacts allowEmptyArchive: true, artifacts: 'dependency-check-report.xml', onlyIfSuccessful: true
+    }
 
 }
